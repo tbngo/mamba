@@ -29,12 +29,16 @@ let translate (globals, functions) =
   (* Get types from the context *)
   let i32_t      = L.i32_type    context
   and i8_t       = L.i8_type     context
-  and i1_t       = L.i1_type     context in
+  and i1_t       = L.i1_type     context
+  and string_t   = L.pointer_type (L.i8_type context)
+  and empty_t     = L.void_type    context in
 
-  (* Return the LLVM type for a MicroC type *)
+  (* Return the LLVM type for a Mamba type *)
   let ltype_of_typ = function
       A.Int   -> i32_t
     | A.Bool  -> i1_t
+    | A.String -> string_t
+    | A.Empty -> empty_t
   in
 
   (* Create a map of global variables after creating each *)
@@ -65,7 +69,7 @@ let translate (globals, functions) =
     let (the_function, _) = StringMap.find fdecl.sfname function_decls in
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
-    let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
+    let int_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
 
     (* Construct the function's "locals": formal arguments and locally
        declared variables.  Allocate each on the stack, initialize their
@@ -100,6 +104,8 @@ let translate (globals, functions) =
         SLiteral i  -> L.const_int i32_t i
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SId s       -> L.build_load (lookup s) s builder
+      | SStringLit s -> L.build_global_stringptr s "str" builder
+      | SNoexpr     -> L.const_int i32_t 0
       | SAssign (s, e) -> let e' = build_expr builder e in
         ignore(L.build_store e' (lookup s) builder); e'
       | SBinop (e1, op, e2) ->
@@ -113,6 +119,12 @@ let translate (globals, functions) =
          | A.Equal   -> L.build_icmp L.Icmp.Eq
          | A.Neq     -> L.build_icmp L.Icmp.Ne
          | A.Less    -> L.build_icmp L.Icmp.Slt
+         | A.Greater -> L.build_icmp L.Icmp.Ugt
+         | A.Leq     -> L.build_icmp L.Icmp.Ule
+         | A.Geq     -> L.build_icmp L.Icmp.Uge
+         | A.Mult    -> L.build_fmul
+         | A.Div     -> L.build_fdiv
+         | A.Mod     -> L.build_frem
         ) e1' e2' "tmp" builder
       | SCall ("print", [e]) ->
         L.build_call printf_func [| int_format_str ; (build_expr builder e) |]

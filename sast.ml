@@ -7,10 +7,13 @@ and sx =
     SLiteral of int
   | SBoolLit of bool
   | SId of string
+  | SStringLit of string
   | SBinop of sexpr * op * sexpr
   | SAssign of string * sexpr
+  | SOpmod of opmod * sexpr
   (* call *)
   | SCall of string * sexpr list
+  | SNoexpr
 
 type sstmt =
     SBlock of sstmt list
@@ -45,6 +48,8 @@ let rec string_of_sexpr (t, e) =
       | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
       | SCall(f, el) ->
           f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
+      | SNoexpr -> ""
+      | SOpmod(o, e) -> string_of_opmod o ^ string_of_sexpr e
     ) ^ ")"
 
 let rec string_of_sstmt = function

@@ -27,12 +27,12 @@ let check (globals, functions) =
 
   (* Collect function declarations for built-in functions: no bodies *)
   let built_in_decls =
-    StringMap.add "print" {
-      rtyp = Int;
+      StringMap.add "print" {
+      rtyp = String;
       fname = "print";
-      formals = [(Int, "x")];
+      formals = [(String, "x")];
       locals = []; body = [] } StringMap.empty
-  in
+    in
 
   (* Add function name to symbol table *)
   let add_func map fd =
@@ -85,6 +85,8 @@ let check (globals, functions) =
         Literal l -> (Int, SLiteral l)
       | BoolLit l -> (Bool, SBoolLit l)
       | Id var -> (type_of_identifier var, SId var)
+      | StringLit s -> (String, SStringLit s)
+      | Noexpr      -> (Empty, SNoexpr)
       | Assign(var, e) as ex ->
         let lt = type_of_identifier var
         and (rt, e') = check_expr e in
@@ -112,6 +114,12 @@ let check (globals, functions) =
           in
           (t, SBinop((t1, e1'), op, (t2, e2')))
         else raise (Failure err)
+      | Opmod(op, e) as ex ->
+          let (t, e') = check_expr e in
+          let ty = match op with
+            Not when t = Bool -> Bool
+          | _ -> raise (Failure ("illegal unary operator "))
+          in (ty, SOpmod(op, (t, e')))
       | Call(fname, args) as call ->
         let fd = find_func fname in
         let param_length = List.length fd.formals in

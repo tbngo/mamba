@@ -4,14 +4,14 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE PLUS MINUS ASSIGN
-%token EQ NEQ LT AND OR
-%token IF ELSE WHILE INT BOOL
+%token SEMI LPAREN RPAREN LBRACE RBRACE PLUS MINUS ASSIGN TIMES DIVIDE MODULUS COLON
+%token EQ NEQ LT AND OR GT LEQ GEQ NOT
+%token IF ELSE WHILE INT BOOL STRING EMPTY
 /* return, COMMA token */
-%token RETURN COMMA
+%token RETURN COMMA DEF END
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID
+%token <string> ID STRING_LITERAL
 %token EOF
 
 %start program
@@ -21,8 +21,10 @@ open Ast
 %left OR
 %left AND
 %left EQ NEQ
-%left LT
+%left LT GT LEQ GEQ
 %left PLUS MINUS
+%left TIMES DIVIDE MODULUS
+%right NOT
 
 %%
 
@@ -32,31 +34,33 @@ program:
 
 decls:
    /* nothing */ { ([], [])               }
- | vdecl SEMI decls { (($1 :: fst $3), snd $3) }
+ | vdecl decls { (($1 :: fst $2), snd $2) }
  | fdecl decls { (fst $2, ($1 :: snd $2)) }
 
 vdecl_list:
   /*nothing*/ { [] }
-  | vdecl SEMI vdecl_list  {  $1 :: $3 }
+  | vdecl vdecl_list  {  $1 :: $2 }
 
 /* int x */
 vdecl:
-  typ ID { ($1, $2) }
+  typ ID SEMI { ($1, $2) }
 
 typ:
     INT   { Int   }
   | BOOL  { Bool  }
+  | STRING { String }
+  | EMPTY { Empty }
 
 /* fdecl */
 fdecl:
-  vdecl LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+  DEF typ ID LPAREN formals_opt RPAREN COLON vdecl_list stmt_list END
   {
     {
-      rtyp=fst $1;
-      fname=snd $1;
-      formals=$3;
-      locals=$6;
-      body=$7
+      rtyp= $2;
+      fname= $3;
+      formals=  $5;
+      locals=  $8;
+      body= $9
     }
   }
 
@@ -66,8 +70,8 @@ formals_opt:
   | formals_list { $1 }
 
 formals_list:
-  vdecl { [$1] }
-  | vdecl COMMA formals_list { $1::$3 }
+  vdecl COMMA formals_list { $1::$3 }
+  | vdecl { [$1] }
 
 stmt_list:
   /* nothing */ { [] }
@@ -79,21 +83,30 @@ stmt:
   /* if (condition) { block1} else {block2} */
   /* if (condition) stmt else stmt */
   | IF LPAREN expr RPAREN stmt ELSE stmt    { If($3, $5, $7) }
-  | WHILE LPAREN expr RPAREN stmt           { While ($3, $5)  }
+  | WHILE LPAREN expr RPAREN stmt           { While ($3, $5) }
   /* return */
   | RETURN expr SEMI                        { Return $2      }
+  | COLON stmt_list END                     { Block $2       }
 
 expr:
     LITERAL          { Literal($1)            }
   | BLIT             { BoolLit($1)            }
+  | STRING_LITERAL   { StringLit($1)           }
   | ID               { Id($1)                 }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
   | expr EQ     expr { Binop($1, Equal, $3)   }
-  | expr NEQ    expr { Binop($1, Neq, $3)     }
+  | expr NEQ    expr { Binop($1, Neq,   $3)   }
   | expr LT     expr { Binop($1, Less,  $3)   }
   | expr AND    expr { Binop($1, And,   $3)   }
   | expr OR     expr { Binop($1, Or,    $3)   }
+  | expr TIMES  expr { Binop($1, Mult,  $3)   }
+  | expr DIVIDE expr { Binop($1, Div,   $3)   }
+  | expr MODULUS expr { Binop($1, Mod,  $3)   }
+  | expr LEQ    expr { Binop($1, Leq,   $3)   }
+  | expr GT     expr { Binop($1, Greater, $3) }
+  | expr GEQ    expr { Binop($1, Geq, $3)     }
+  | NOT expr         { Opmod(Not, $2)          }
   | ID ASSIGN expr   { Assign($1, $3)         }
   | LPAREN expr RPAREN { $2                   }
   /* call */
