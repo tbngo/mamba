@@ -119,9 +119,9 @@ let translate (globals, functions) =
          | A.Equal   -> L.build_icmp L.Icmp.Eq
          | A.Neq     -> L.build_icmp L.Icmp.Ne
          | A.Less    -> L.build_icmp L.Icmp.Slt
-         | A.Greater -> L.build_icmp L.Icmp.Ugt
-         | A.Leq     -> L.build_icmp L.Icmp.Ule
-         | A.Geq     -> L.build_icmp L.Icmp.Uge
+         | A.Greater -> L.build_icmp L.Icmp.Sgt
+         | A.Leq     -> L.build_icmp L.Icmp.Sle
+         | A.Geq     -> L.build_icmp L.Icmp.Sge
          | A.Mult    -> L.build_fmul
          | A.Div     -> L.build_fdiv
          | A.Mod     -> L.build_frem
