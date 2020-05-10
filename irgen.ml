@@ -71,6 +71,7 @@ let translate (globals, functions) =
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
     and str_format_str = L.build_global_stringptr "%s\n" "fmt" builder
+    and bool_format_str = L.build_global_stringptr "%d\n" "fmt" builder
     in
 
     (* Construct the function's "locals": formal arguments and locally
@@ -128,6 +129,11 @@ let translate (globals, functions) =
          | A.Div     -> L.build_sdiv
          | A.Mod     -> L.build_srem
         ) e1' e2' "tmp" builder
+      | SOpmod (op, ((t, _) as e)) ->
+        let e' = build_expr builder e in
+        (match op with
+            A.Not    -> L.build_not)
+        e' "tmp" builder
       | SCall ("print", [e]) ->
         let t = match e with
           (a, _) -> a
@@ -135,7 +141,10 @@ let translate (globals, functions) =
         if A.string_of_typ(t) = "int" then
           L.build_call printf_func [| int_format_str ; (build_expr builder e) |]
             "printf" builder
-        else L.build_call printf_func [| str_format_str ; (build_expr builder e) |]
+        else if A.string_of_typ(t) = "str" then
+          L.build_call printf_func [| str_format_str ; (build_expr builder e) |]
+            "printf" builder
+        else L.build_call printf_func [| bool_format_str ; (build_expr builder e) |]
           "printf" builder
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in

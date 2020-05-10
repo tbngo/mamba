@@ -30,8 +30,8 @@ rule token = parse
 | '>'      { GT }
 | ">="     { GEQ }
 | "<="     { LEQ }
-| "&&"     { AND }
-| "||"     { OR }
+| "and"     { AND }
+| "or"     { OR }
 | "if"     { IF }
 | "else"   { ELSE }
 | "while"  { WHILE }

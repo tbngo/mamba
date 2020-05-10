@@ -1,10 +1,14 @@
 def int main():
   str b;
   int a;
+  bool c;
 
-  a = 1+2;
-  b = "hi";
-  a = a*4;
+  a = 1*2;
+  b = "Mamba Rocks";
+  # comment!!! a = a*4;
+  c = 12 != 2;
+
+  print(c);
   print(b);
   print(a);
 end

@@ -136,7 +136,7 @@ let check (globals, functions) =
                let err = "illegal argument found " ^ string_of_typ et ^
                          " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
                in
-               if ((string_of_typ et = "str" || string_of_typ et = "int") && fname = "print" ) then (et, e') else (check_assign ft et err, e')
+               if ((string_of_typ et = "str" || string_of_typ et = "int" || string_of_typ et = "bool") && fname = "print" ) then (et, e') else (check_assign ft et err, e')
           in
           let args' = List.map2 check_call fd.formals args
           in (fd.rtyp, SCall(fname, args'))

@@ -13,6 +13,10 @@ ocamlbuild -pkgs llvm mamba.native
 ```
 lli example.out
 ```
+###
+```
+This is all in a make file. Running make cleans resotres the directory. Running make all compiles mamba.native and running make test runs the test code example.mb with mamba.native and prints the output of the llvm file.
+```
 
 ### Compiler files
 -  `ast.ml`: abstract syntax tree (AST) definition
