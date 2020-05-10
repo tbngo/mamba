@@ -69,7 +69,9 @@ let translate (globals, functions) =
     let (the_function, _) = StringMap.find fdecl.sfname function_decls in
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
-    let int_format_str = L.build_global_stringptr "%s\n" "fmt" builder in
+    let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
+    and str_format_str = L.build_global_stringptr "%s\n" "fmt" builder
+    in
 
     (* Construct the function's "locals": formal arguments and locally
        declared variables.  Allocate each on the stack, initialize their
@@ -122,12 +124,18 @@ let translate (globals, functions) =
          | A.Greater -> L.build_icmp L.Icmp.Sgt
          | A.Leq     -> L.build_icmp L.Icmp.Sle
          | A.Geq     -> L.build_icmp L.Icmp.Sge
-         | A.Mult    -> L.build_fmul
-         | A.Div     -> L.build_fdiv
-         | A.Mod     -> L.build_frem
+         | A.Mult    -> L.build_mul
+         | A.Div     -> L.build_sdiv
+         | A.Mod     -> L.build_srem
         ) e1' e2' "tmp" builder
       | SCall ("print", [e]) ->
-        L.build_call printf_func [| int_format_str ; (build_expr builder e) |]
+        let t = match e with
+          (a, _) -> a
+        in
+        if A.string_of_typ(t) = "int" then
+          L.build_call printf_func [| int_format_str ; (build_expr builder e) |]
+            "printf" builder
+        else L.build_call printf_func [| str_format_str ; (build_expr builder e) |]
           "printf" builder
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in

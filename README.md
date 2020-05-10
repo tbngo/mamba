@@ -1,10 +1,10 @@
-### Build the MicroC compiler
+### Build the Mamba compiler
 
 ```
 ocamlbuild -pkgs llvm mamba.native
 ```
 
-### Run the MicroC compiler and generate llvm code
+### Run the Mamba compiler and generate llvm code
 ```
 ./mamba.native -l example.mc > example.out
 ```

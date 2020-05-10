@@ -1,4 +1,4 @@
-(* Semantic checking for the MicroC compiler *)
+(* Semantic checking for the Mamba compiler *)
 
 open Ast
 open Sast
@@ -28,10 +28,14 @@ let check (globals, functions) =
   (* Collect function declarations for built-in functions: no bodies *)
   let built_in_decls =
       StringMap.add "print" {
-      rtyp = String;
+      rtyp = Empty;
       fname = "print";
+      formals = [(Int, "x")];
+      locals = []; body = [] }
+      (StringMap.singleton "print_str" {rtyp = Empty;
+      fname = "print_str";
       formals = [(String, "x")];
-      locals = []; body = [] } StringMap.empty
+      locals = []; body = []})
     in
 
   (* Add function name to symbol table *)
@@ -106,9 +110,10 @@ let check (globals, functions) =
         if t1 = t2 then
           (* Determine expression type based on operator and operand types *)
           let t = match op with
-              Add | Sub when t1 = Int -> Int
+              Add | Sub | Mult | Div | Mod when t1 = Int -> Int
             | Equal | Neq -> Bool
-            | Less when t1 = Int -> Bool
+            | Add when t1 = String -> String
+            | Less | Greater | Leq | Geq when t1 = Int -> Bool
             | And | Or when t1 = Bool -> Bool
             | _ -> raise (Failure err)
           in
@@ -130,7 +135,8 @@ let check (globals, functions) =
                let (et, e') = check_expr e in
                let err = "illegal argument found " ^ string_of_typ et ^
                          " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
-               in (check_assign ft et err, e')
+               in
+               if ((string_of_typ et = "str" || string_of_typ et = "int") && fname = "print" ) then (et, e') else (check_assign ft et err, e')
           in
           let args' = List.map2 check_call fd.formals args
           in (fd.rtyp, SCall(fname, args'))
