@@ -6,16 +6,16 @@ ocamlbuild -pkgs llvm mamba.native
 
 ### Run the Mamba compiler and generate llvm code
 ```
-./mamba.native -l example.mc > example.out
+./mamba.native -l tests/example.mb > tests/example.out
 ```
 
 ### Run the llvm code
 ```
-lli example.out
+lli tests/example.out
 ```
 ###
 ```
-This is all in a make file. Running make cleans resotres the directory. Running make all compiles mamba.native and running make test runs the test code example.mb with mamba.native and prints the output of the llvm file.
+This is all in a make file. Running make cleans restores the directory. Running make all compiles mamba.native and running make test runs the test code example.mb with mamba.native and prints the output of the llvm file.
 ```
 
 ### Compiler files

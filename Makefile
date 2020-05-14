@@ -8,8 +8,8 @@ clean:
 
 .PHONY: test
 test: mamba.native
-	./mamba.native -l example.mb > example.out
-	lli example.out
+	./mamba.native -l tests/example.mb > tests/example.out
+	lli tests/example.out
 
 mamba.native:
 	ocamlbuild -pkgs llvm mamba.native
