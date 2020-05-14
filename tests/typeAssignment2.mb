@@ -1,0 +1,9 @@
+def int main(): 
+   #should produce error - can't assign a string to a boolean
+   bool a;
+   str b;
+
+   a = false; 
+   b = "test";
+   a = "test";
+end

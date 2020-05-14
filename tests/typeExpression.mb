@@ -1,0 +1,10 @@
+def int main(): 
+   #should produce type arithmetic error - can't add a boolean and an int
+   int a; 
+   bool b; 
+   int c; 
+
+   a = 4; 
+   b = false;
+   c = a + b; 
+end

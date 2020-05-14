@@ -1,0 +1,9 @@
+def int main(): 
+   #should produce type assignment error - assigning boolean value to a string
+   bool a;
+   str b;
+
+   a = false; 
+   b = "test";
+   b = false;
+end

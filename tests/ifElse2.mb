@@ -1,0 +1,13 @@
+def int main(): 
+   bool c; 
+   
+   c = false; 
+
+   #should print Doesn't work since c = false 
+   if (c): 
+      print("Works");
+   end
+   else:
+      print("Doesn't Work"); 
+   end
+end

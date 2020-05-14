@@ -1,0 +1,15 @@
+def int main(): 
+   int a;
+   int b;  
+   
+   a = 4; 
+   b = 4;  
+
+   #should print Works
+   if (a % b == 0): 
+      print("Works");
+   end
+   else:
+      print("Doesn't Work"); 
+   end
+end

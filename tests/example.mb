@@ -1,0 +1,18 @@
+def int main():
+  str b;
+  int a;
+  bool c;
+
+  a = 1*2;
+  b = "Mamba Rocks";
+  # comment!!! a = a*4;
+  c = 12 != 2;
+
+
+  #should print 1 (for true)
+  print(c);
+  #should print Mamba Rocks!
+  print(b);
+  #should print 2
+  print(a);
+end

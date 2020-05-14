@@ -1,0 +1,10 @@
+def int main(): 
+   #should produce type assignment error - can't assign a string to an int 
+   int a;
+   int b;
+
+   a = 4;
+   b = 4;
+   b = 6;
+   a = "string";
+end

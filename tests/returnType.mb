@@ -1,0 +1,4 @@
+def int main(): 
+    #should produce error - can't return a boolean for function declared to return int
+	return false; 
+end
