@@ -33,3 +33,4 @@ This is all in a make file. Running make cleans restores the directory. Running 
 - `mamba.ml`: top-level file to test and run microc compiler
 - `example.mc`: a sample microc source code
 - `example.out`: a sample compiled code of example.mc
+- `tests`: a directory containing test files
